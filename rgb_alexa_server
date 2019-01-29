@@ -1,0 +1,133 @@
+#include <ESP8266WiFi.h>
+
+#include "WemoSwitch.h"
+#include "WemoManager.h"
+#include "CallbackFunction.h"
+#include <FastLED.h>
+#define LED_PIN     4
+#define NUM_LEDS    30
+CRGB leds[NUM_LEDS];
+// prototypes
+boolean connectWifi();
+
+//on/off callbacks
+void redOn();
+void redOff();
+void blueOn();
+void blueOff();
+void greenOn();
+void greenOff();
+
+//------- Replace the following! ------
+char ssid[] = "HOME";       // your network SSID (name)
+char password[] = "135792468";  // your network key
+
+WemoManager wemoManager;
+WemoSwitch *red = NULL;
+WemoSwitch *blue = NULL;
+WemoSwitch *green = NULL;
+
+const int ledPin = BUILTIN_LED;
+
+void setup()
+{
+  FastLED.addLeds<WS2812, LED_PIN, GRB>(leds, NUM_LEDS);
+  Serial.begin(115200);
+
+  // Set WiFi to station mode and disconnect from an AP if it was Previously
+  // connected
+  WiFi.mode(WIFI_STA);
+  WiFi.disconnect();
+  delay(100);
+
+  // Attempt to connect to Wifi network:
+  Serial.print("Connecting Wifi: ");
+  Serial.println(ssid);
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    Serial.print(".");
+    delay(500);
+  }
+  Serial.println("");
+  Serial.println("WiFi connected");
+  Serial.println("IP address: ");
+  IPAddress ip = WiFi.localIP();
+  Serial.println(ip);
+  wemoManager.begin();
+  // Format: Alexa invocation name, local port no, on callback, off callback
+  red = new WemoSwitch("RED lights", 80, redOn, redOff);
+  blue = new WemoSwitch("BLUE lights", 81, blueOn, blueOff);
+  green = new WemoSwitch("GREEN lights", 82, greenOn, greenOff);
+  wemoManager.addDevice(*red);
+  wemoManager.addDevice(*blue);
+  wemoManager.addDevice(*green);
+  pinMode(ledPin, OUTPUT); // initialize digital ledPin as an output.
+  delay(10);
+  digitalWrite(ledPin, HIGH); // Wemos BUILTIN_LED is active Low, so high is off
+}
+
+void loop()
+{
+  
+    leds[9] = CRGB(0, 255, 0);
+    FastLED.show();
+    delay(1000);
+     leds[9] = CRGB(0, 0, 0);
+    FastLED.show();
+    delay(1000);
+    leds[8] = CRGB(0, 0, 255);
+    FastLED.show();
+ // wemoManager.serverLoop();
+ 
+}
+
+void redOn()
+{
+    Serial.print("red turn on ...");
+    digitalWrite(ledPin, LOW);
+    for(int i=0;i<10;i++)
+    {leds[i] = CRGB(255, 0, 0);
+    FastLED.show();}
+}
+void blueOn()
+{
+    Serial.print("blue turn on ...");
+    digitalWrite(ledPin, LOW);
+    for(int i=0;i<10;i++)
+    {leds[i] = CRGB(0, 0, 255);
+    FastLED.show();}
+}
+void greenOn()
+{
+    Serial.print("green turn on ...");
+    digitalWrite(ledPin, LOW);
+    for(int i=0;i<10;i++)
+    {leds[i] = CRGB(0, 255, 0);
+    FastLED.show();}
+}
+
+void redOff()
+{
+    Serial.print("red turn off ...");
+    digitalWrite(ledPin, HIGH);
+    for(int i=0;i<10;i++)
+    {leds[i] = CRGB(0, 0, 0);
+    FastLED.show();}
+}
+
+void blueOff()
+{
+    Serial.print("blue turn off ...");
+    digitalWrite(ledPin, HIGH);
+    for(int i=0;i<10;i++)
+    {leds[i] = CRGB(0, 0, 0);
+    FastLED.show();}
+}
+void greenOff()
+{
+    Serial.print("gree turn off ...");
+    digitalWrite(ledPin, HIGH);
+    for(int i=0;i<10;i++)
+    {leds[i] = CRGB(0, 0, 0);
+    FastLED.show();}
+}
